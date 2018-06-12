@@ -1,9 +1,10 @@
+import sys
 import requests
 import serial
 
 
-SERIAL_PORT = '/dev/tty.usbmodem1411'
-SERIAL_RATE = 9600
+SERIAL_PORT = sys.argv[1] 
+SERIAL_RATE = sys.argv[2]
 DB_URL = 'http://ec2-18-205-17-12.compute-1.amazonaws.com:3000/dbhandler/data'
 
 
