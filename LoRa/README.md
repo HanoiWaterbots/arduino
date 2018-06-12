@@ -23,6 +23,10 @@ _Currently only `LoRaAllInOne` is tested. `LoRaReceiver` not implemented._
 		- Wakeup: can send & receive data; can send data to modules in save mode
 		- Save (power): cannot send data; can receive data from modules in wakeup mode
 		- Sleep: for writing module settings
+		
+## Circuits
+
+<img src="https://github.com/HanoiWaterbots/arduino/blob/master/LoRa/imgs/circuit_2.jpg?raw=true" width="400"/> <img src="https://github.com/HanoiWaterbots/arduino/blob/master/LoRa/imgs/circuit.jpg?raw=true" width="400"/>
 
 ## Issues
 
