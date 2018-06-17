@@ -86,6 +86,18 @@ void loop() {
 	if(millis() - updateTime > 2000)
 	{
 		updateTime = millis();
+    Serial.print("Timestamp = ");
+    Serial.print(rtc.day);
+    Serial.print("/");
+    Serial.print(rtc.month);
+    Serial.print("/");
+    Serial.print(rtc.year);
+    Serial.print("    ");
+    Serial.print(rtc.hour);
+    Serial.print(":");
+    Serial.print(rtc.minute);
+    Serial.print("::");
+    Serial.println(rtc.second);
 		Serial.print(F("ph= "));
 		Serial.print(sensorHub.getValueBySensorNumber(0));
 		Serial.print(F("  Temp= "));
@@ -130,4 +142,5 @@ void loop() {
 //Serial.print(rtc.minute);
 //Serial.print("   Second = ");//second
 //Serial.println(rtc.second);
+
 
