@@ -1,10 +1,8 @@
 # LoRa Node-to-Node Communication
 
-- `LoRaSender`
+- `LoRaSender`: need 2 hardware serial ports
 - `LoRaReceiver`
 - `LoRaAllInOne`: for testing both sender & receiver on the same Arduino board
-
-_Currently only `LoRaAllInOne` is tested. `LoRaReceiver` not implemented._
 
 ## Notes on the Modules
 
