@@ -1,10 +1,8 @@
-#include <SimpleTimer.h>
-
 // Pin settings
-#define MD0 7
-#define MD1 6
-#define AUX 3
-#define LoRa Serial1
+#define SENDER_MD0 7
+#define SENDER_MD1 6
+#define SENDER_AUX 3
+#define LoRaSender Serial1
 
 // LoRa modes
 #define NORMAL 0
@@ -14,10 +12,29 @@
 
 // LoRa settings
 byte ADDH = 0x12;
-byte ADDL = 0x30;
+byte ADDL = 0x34;
 byte SPEED = 0x1A;
 byte CHAN = 0x17;
 byte OPTION = 0x44;
+
+byte SENDER_ADDH = 0x12;
+byte SENDER_ADDL = 0x30;
+byte SENDER_SPEED = 0x1A;
+byte SENDER_CHAN = 0x17;
+byte SENDER_OPTION = 0x44;
+
+byte RECEIVER_ADDH = 0x12;
+byte RECEIVER_ADDL = 0x31;
+byte RECEIVER_SPEED = 0x1A;
+byte RECEIVER_CHAN = 0x17;
+byte RECEIVER_OPTION = 0x44;
+
+byte SENDER_ADD[2] = { 0x12, 0x30 };
+byte RECEIVER_ADD[2] = { 0x12, 0x31 };
+byte BROADCAST_ADD[2] = { 0xff, 0xff };
+String SENDER_ADD_STR = String((char *) SENDER_ADD);
+String RECEIVER_ADD_STR = String((char *) RECEIVER_ADD);
+String BROADCAST_ADD_STR = String((char *) BROADCAST_ADD);
 
 // LoRa commands
 byte SET_SETTINGS_PERM[] = { 0xC0, ADDH, ADDL, SPEED, CHAN, OPTION }; // write to flash
@@ -28,94 +45,75 @@ byte READ_VERSION_NO[] = { 0xC3, 0xC3, 0xC3 };
 byte RESET[] = { 0xC4, 0xC4, 0xC4 };
 byte READ_VOLTAGE[] = { 0xC5, 0xC5, 0xC5 };
 
-// LoRa receiver information
-byte RECEIVER_ADD[2] = { 0xff, 0xff };
-
-// Utilities
-#define END_OF_BUFFER '\0'
-
-SimpleTimer timer;
-int sendDataTimerId;
-
 // Global variables
-char c;
-int flag = 0;
-int aux = HIGH, lastAux;
-byte dataBuffer[512];
+int senderAux = HIGH, senderLastAux;
+int receiverAux = HIGH, receiverLastAux;
+int sending = 0;
 
 /* Helpers */
 
-void parseData() {
-  dataBuffer[0] = 0x11; dataBuffer[1] = 0x22; dataBuffer[2] = 0x33; 
-  dataBuffer[3] = END_OF_BUFFER;
+void LoRaSetMode(int md0, int md1, int mode) {
+  digitalWrite(md0, mode % 2);
+  digitalWrite(md1, mode / 2);
 }
 
-void LoRaSetMode(int mode) {
-  digitalWrite(MD0, mode % 2);
-  digitalWrite(MD1, mode / 2);
-}
-
-void LoRaSendReadCmd(byte cmd[]) {
+void LoRaSendReadCmd(HardwareSerial &LoRa, byte cmd[]) {
   LoRa.write(cmd, sizeof(cmd));
 }
 
-void LoRaSendSetCmd(byte cmd[], byte addh, byte addl, byte sp, byte chan, byte option) {
+void LoRaSendSetCmd(HardwareSerial &LoRa, byte cmd[], byte addh, byte addl, byte sp, byte chan, byte option) {
   cmd[1] = addh; cmd[2] = addl; cmd[3] = sp; cmd[4] = chan; cmd[5] = option;
   LoRa.write(cmd, sizeof(cmd));
-}
-
-void LoRaSendData() {
-  Serial.println("Parsing data...");
-  parseData();
-  
-  LoRaSetMode(WAKEUP);
-  Serial.print("Sending data to "); Serial.print(RECEIVER_ADD[0], HEX); Serial.print(RECEIVER_ADD[1], HEX); Serial.println("...");
-  
-  LoRa.write(RECEIVER_ADD, sizeof(RECEIVER_ADD));
-  for (int i = 0; dataBuffer[i] != END_OF_BUFFER; i++) {
-    LoRa.write(dataBuffer[i]);
-    Serial.print(dataBuffer[i], HEX);  
-  }
-  Serial.println();
-  
-  LoRaSetMode(SAVE);
 }
 
 /* Main */
 
 void setup() {
-  pinMode(MD0, OUTPUT);
-  pinMode(MD1, OUTPUT);
-  pinMode(AUX, INPUT);
+  pinMode(SENDER_MD0, OUTPUT);
+  pinMode(SENDER_MD1, OUTPUT);
+  pinMode(SENDER_AUX, INPUT);
 
   Serial.begin(115200);
-  LoRa.begin(9600);
+  LoRaSender.begin(9600);
 
-  LoRaSetMode(SLEEP);
-  LoRaSendSetCmd(SET_SETTINGS, ADDH, ADDL, SPEED, CHAN, OPTION);
-  LoRaSetMode(SAVE);
-
-  sendDataTimerId = timer.setInterval(10000, LoRaSendData);
+  LoRaSetMode(SENDER_MD0, SENDER_MD1, SLEEP);
+  LoRaSendSetCmd(LoRaSender, SET_SETTINGS, SENDER_ADDH, SENDER_ADDL, SENDER_SPEED, SENDER_CHAN, SENDER_OPTION);
+  LoRaSetMode(SENDER_MD0, SENDER_MD1, NORMAL);
 }
 
 void loop() {
-  timer.run();
-  
   // Check working mode
-  lastAux = aux;
-  aux = digitalRead(AUX);
+  senderLastAux = senderAux;
+  senderAux = digitalRead(SENDER_AUX);
 
-  if (aux != lastAux) {
-    if (aux == HIGH) {
-      Serial.println("\nAUX Rising...");
+  if (senderAux != senderLastAux) {
+    if (senderAux == HIGH) {
+      Serial.println("[SENDER] AUX Rising...");
     } else {
-      Serial.println("AUX Falling...");
+      Serial.println("[SENDER] AUX Falling...");
+    }
+  }
+
+  // Send data
+  if (Serial.available()) {
+    if (!sending) {
+      Serial.println("[SEND] Start sending...");
+      sending = 1;
+    }
+    byte b = Serial.read();
+    LoRaSender.write(b);
+  } else {
+    if (sending) {
+      Serial.println("[SEND] Stop sending.");
+      LoRaSender.flush();
+      sending = 0;
     }
   }
 
   // Receive data
-  if (LoRa.available()) {
-    c = LoRa.read();
-    Serial.print(c, HEX);
+  if (LoRaSender.available()) {
+    Serial.print("[RECEIVE] ");
+    byte b = LoRaSender.read();
+    Serial.print(b);
   }
 }
