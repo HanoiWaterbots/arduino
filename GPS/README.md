@@ -7,3 +7,22 @@
 ## Libraries
 
 - [TinyGPS++](https://github.com/mikalhart/TinyGPSPlus)
+
+## Sample Output
+
+```
+Location: 21.033546,105.852103  Altitude: 24.80M  Date/Time: 6/17/2018 14:12:44.00
+Location: 21.033546,105.852103  Altitude: 24.80M  Date/Time: 6/17/2018 14:12:44.00
+Location: 21.033548,105.852104  Altitude: 24.80M  Date/Time: 6/17/2018 14:12:45.00
+Location: 21.033548,105.852104  Altitude: 24.80M  Date/Time: 6/17/2018 14:12:45.00
+Location: 21.033548,105.852104  Altitude: 24.20M  Date/Time: 6/17/2018 14:12:45.00
+Location: 21.033548,105.852104  Altitude: 24.20M  Date/Time: 6/17/2018 14:12:45.00
+Location: 21.033548,105.852104  Altitude: 24.20M  Date/Time: 6/17/2018 14:12:45.00
+Location: 21.033548,105.852104  Altitude: 24.20M  Date/Time: 6/17/2018 14:12:45.00
+Location: 21.033548,105.852104  Altitude: 24.20M  Date/Time: 6/17/2018 14:12:45.00
+Location: 21.033548,105.852104  Altitude: 24.20M  Date/Time: 6/17/2018 14:12:45.00
+Location: 21.033548,105.852104  Altitude: 24.20M  Date/Time: 6/17/2018 14:12:45.00
+Location: 21.033548,105.852104  Altitude: 24.20M  Date/Time: 6/17/2018 14:12:45.00
+Location: 21.033548,105.852104  Altitude: 24.20M  Date/Time: 6/17/2018 14:12:45.00
+Location: 21.033548,105.852104  Altitude: 24.20M  Date/Time: 6/17/2018 14:12:45.00
+```
