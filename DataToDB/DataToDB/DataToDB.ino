@@ -6,6 +6,7 @@
 #include "OneWire.h"
 #include "SdService.h"
 #include "Debug.h"
+#include <SoftwareSerial.h>
 #include <TinyGPS++.h>
 
 /* WaterMonitor */
@@ -26,14 +27,18 @@ TinyGPSPlus gpsParser;
 double GPS_lat = 0.0;
 double GPS_lng = 0.0;
 
+/* ESP8266 */
+SoftwareSerial ESP(10, 11); // RX, TX
+
 /* Main */
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(57600);
   rtc.setup();
   sensorHub.setup();
   sdService.setup();
   GPS.begin(9600);
+  ESP.begin(115200);
 }
 
 void loop() {
@@ -46,7 +51,7 @@ void loop() {
       if (gpsParser.encode(c)) parseGPS();
   }
 
-	// ************************* Serial debugging ******************
+	// ************************* ESP debugging ******************
 	if(millis() - updateTime > 2000)
 	{
 		updateTime = millis();
@@ -62,21 +67,67 @@ void parseGPS() {
 }
 
 void sendData() {
+  ESP.print("{");
+ 
+  ESP.print(F("\"timestamp\": \""));
+  ESP.print(rtc.year);
+  ESP.print("-");
+  ESP.print(rtc.month);
+  ESP.print("-");
+  ESP.print(rtc.day);
+  ESP.print("T");
+  ESP.print(rtc.hour);
+  ESP.print(":");
+  ESP.print(rtc.minute);
+  ESP.print(":");
+  ESP.print(rtc.second);
+  ESP.print("\",");
+  
+  ESP.print(F("\"pH\":  "));
+  ESP.print(sensorHub.getValueBySensorNumber(0));
+  ESP.print(",");
+  
+  ESP.print(F("\"Temperature\": "));
+  ESP.print(sensorHub.getValueBySensorNumber(1));
+  ESP.print(",");
+  
+  ESP.print(F("\"DO\": "));
+  ESP.print(sensorHub.getValueBySensorNumber(2));
+  ESP.print(",");
+  
+  ESP.print(F("\"ORP\": "));                               
+  ESP.print(sensorHub.getValueBySensorNumber(4)); 
+  ESP.print(",");
+  
+  ESP.print(F("\"Conductivity\": "));
+  double x = sensorHub.getValueBySensorNumber(3);
+  ESP.print((9.0967*x + 38.275));
+  ESP.print(",");
+
+  ESP.print(F("\"lat\": "));
+  ESP.print(GPS_lat, 6);
+  ESP.print(",");
+  ESP.print(F("\"lng\": "));
+  ESP.print(GPS_lng, 6);
+  
+  ESP.println("}");
+
+  // Debug
   Serial.print("{");
  
-  Serial.print(F("\"Timestamp\": "));
-  Serial.print(rtc.day);
-  Serial.print("/");
-  Serial.print(rtc.month);
-  Serial.print("/");
+  Serial.print(F("\"timestamp\": \""));
   Serial.print(rtc.year);
-  Serial.print("    ");
+  Serial.print("-");
+  Serial.print(rtc.month);
+  Serial.print("-");
+  Serial.print(rtc.day);
+  Serial.print("T");
   Serial.print(rtc.hour);
   Serial.print(":");
   Serial.print(rtc.minute);
   Serial.print(":");
   Serial.print(rtc.second);
-  Serial.print(",");
+  Serial.print("\",");
   
   Serial.print(F("\"pH\":  "));
   Serial.print(sensorHub.getValueBySensorNumber(0));
@@ -95,7 +146,6 @@ void sendData() {
   Serial.print(",");
   
   Serial.print(F("\"Conductivity\": "));
-  double x = sensorHub.getValueBySensorNumber(3);
   Serial.print((9.0967*x + 38.275));
   Serial.print(",");
 
