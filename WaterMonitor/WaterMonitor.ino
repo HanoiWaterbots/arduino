@@ -86,7 +86,9 @@ void loop() {
 	if(millis() - updateTime > 2000)
 	{
 		updateTime = millis();
-    Serial.print("Timestamp = ");
+    Serial.println("{");
+   
+    Serial.print("\"Timestamp\": ");                            //Printing timestamp
     Serial.print(rtc.day);
     Serial.print("/");
     Serial.print(rtc.month);
@@ -96,18 +98,32 @@ void loop() {
     Serial.print(rtc.hour);
     Serial.print(":");
     Serial.print(rtc.minute);
-    Serial.print("::");
-    Serial.println(rtc.second);
-		Serial.print(F("ph= "));
-		Serial.print(sensorHub.getValueBySensorNumber(0));
-		Serial.print(F("  Temp= "));
-		Serial.print(sensorHub.getValueBySensorNumber(1));
-		Serial.print(F("  Do= "));
-		Serial.print(sensorHub.getValueBySensorNumber(2));
-		Serial.print(F("  Ec= "));
-		Serial.print(sensorHub.getValueBySensorNumber(3));
-		Serial.print(F("  Orp= "));
-		Serial.println(sensorHub.getValueBySensorNumber(4));
+    Serial.print(":");
+    Serial.print(rtc.second);
+		Serial.println(",");
+    
+		Serial.print(F("\"ph\":  "));
+		Serial.print(sensorHub.getValueBySensorNumber(0));    //Printing pH
+    Serial.println(",");
+    
+		Serial.print(F("\"Temperature\": "));
+		Serial.print(sensorHub.getValueBySensorNumber(1));    //Printing Temparature
+	  Serial.println(",");
+    
+		Serial.print(F("\"Do\": "));
+		Serial.print(sensorHub.getValueBySensorNumber(2));    //Printing Do
+	  Serial.println(",");
+    
+		Serial.print(F("\"Orp\": "));                               
+		Serial.print(sensorHub.getValueBySensorNumber(4));    //Printing ORP
+    Serial.println(",");
+    
+    Serial.print(F("\"Ec\": "));
+    double x = sensorHub.getValueBySensorNumber(3);             //Printing EC
+    Serial.println((9.0967*x + 38.275));
+    
+    Serial.println("}");
+ 
 	}
 }
 
@@ -142,5 +158,4 @@ void loop() {
 //Serial.print(rtc.minute);
 //Serial.print("   Second = ");//second
 //Serial.println(rtc.second);
-
 
