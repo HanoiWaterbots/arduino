@@ -1,4 +1,4 @@
-#ESP8266 for Real Time Data Transmission
+# ESP8266 for Real Time Data Transmission
 1. Firstly, install all the requirements in the virtual environment
    `pip install -r requirements.txt`
 
