@@ -10,3 +10,7 @@
    `ampy -p /dev/ttyUSB0 put boot.py main.py`
 
 Now when we press the reset button, it must start the program in boot.py
+
+## Sample Data to be sent from the Arduino
+The data input through serial is a string as shown below:
+`"{\"lat\": <lat>,\"lng\": <lng>,\"pH\": <ph>,\"Temperature\": <temperature>,\"DO\": <DO>,\"ORP\": <ORP>,\"Conductivity\": <Conductivity>,\"timestamp\": \"<Timestamp>"}"`
