@@ -90,8 +90,8 @@ void setup() {
   ESC1.attach(2);  
   ESC2.attach(3);
 
-  ESC1.writeMicroseconds(1550);
-  ESC2.writeMicroseconds(1550);
+  ESC1.writeMicroseconds(1600);
+  ESC2.writeMicroseconds(1600);
   delay(2000);
 
   Serial.begin(115200);
@@ -143,4 +143,3 @@ void loop() {
     LoRaReceiver.flush();
   }
 }
-
