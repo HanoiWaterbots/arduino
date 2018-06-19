@@ -6,7 +6,7 @@
 #include "OneWire.h"
 #include "SdService.h"
 #include "Debug.h"
-#include <SoftwareSerial.h>
+// #include <SoftwareSerial.h>
 #include <TinyGPS++.h>
 
 /* WaterMonitor */
@@ -28,7 +28,8 @@ double GPS_lat = 0.0;
 double GPS_lng = 0.0;
 
 /* ESP8266 */
-SoftwareSerial ESP(10, 11); // RX, TX
+// SoftwareSerial ESP(10, 11); // RX, TX
+#define ESP Serial3
 
 /* Main */
 
@@ -92,7 +93,9 @@ void sendData() {
   ESP.print(",");
   
   ESP.print(F("\"DO\": "));
-  ESP.print(sensorHub.getValueBySensorNumber(2));
+  double do_value = sensorHub.getValueBySensorNumber(2);
+  if (do_value >= 10000000000 || do_value <= -1000000000) do_value = -1.0;
+  ESP.print(do_value);
   ESP.print(",");
   
   ESP.print(F("\"ORP\": "));                               
@@ -138,7 +141,7 @@ void sendData() {
   Serial.print(",");
   
   Serial.print(F("\"DO\": "));
-  Serial.print(sensorHub.getValueBySensorNumber(2));
+  Serial.print(do_value);
   Serial.print(",");
   
   Serial.print(F("\"ORP\": "));                               
