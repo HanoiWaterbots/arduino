@@ -18,19 +18,24 @@ def do_connect():
         sta_if.active(True)
         
         #Provide the wifi SSID and password here
-        sta_if.connect('Backpakerf3', '25trungyen')
+        sta_if.connect('HUAWEI-FA42', '71307112')
         
         while not sta_if.isconnected():
             pass
 
 #Send the sensor data to the API Server
 def sendData(x):
-    urequests.post('http://ec2-18-205-17-12.compute-1.amazonaws.com:3000/dbhandler/data', json=x)
+    print("Sending request")
+    res = urequests.post('http://ec2-18-205-17-12.compute-1.amazonaws.com:3000/dbhandler/data', json=x)
+    print(res.text)
 
 #Main function
 def main():
+    print("Connecting")
     do_connect()
-
+    print("Connected")
+    res = urequests.post('http://ec2-18-205-17-12.compute-1.amazonaws.com:3000/dbhandler/data', data="Hello")
+    print(res.text)
     uart=UART(0,115200)
     x = ""
     #Until the ESP runs, the serial input to the ESP will be processed to be sent to the server
@@ -45,10 +50,13 @@ def main():
             x = x + chunk
             #One data entry ends after the newline character
             if x.find('\n') >= 0:
-                #Parse string to JSON format
-                x = ujson.loads(x)
-                sendData(x)
+                try:
+                    x = x.replace('ovf', '0.0')
+                    #Parse string to JSON format
+                    x = ujson.loads(x)
+                    sendData(x)
+                except ValueError:
+                    print("ValueError: Discarding")
                 #Reset for the next entry
                 x = ""
-
 main()
