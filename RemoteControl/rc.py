@@ -21,7 +21,7 @@ A_KEY = False
 S_KEY = False
 D_KEY = False
 
-TIME_INTERVAL = 3 #In seconds
+TIME_INTERVAL = 3#In seconds
 print("Done")
 
 
@@ -123,8 +123,7 @@ def main():
     #Start Input
     t = time.time()
     while(True):
-        events = pygame.event.get()
-        for event in events:
+        for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 exit()
@@ -145,8 +144,10 @@ def main():
         screen.blit(rightMotorSpeed, (450,50))
         pygame.display.update()
         if(time.time() - t >= TIME_INTERVAL):
-            s.write(('l' + str(LM)).encode())
-            s.write(('r' + str(RM)).encode())
+
+            print("Writing" + 'b' + str(LM) + ";" +  str(RM))
+            s.write(('b' + str(LM) + ";" +  str(RM)).encode())
+            print("Written")
             t = time.time()
 
 if __name__ == '__main__':
