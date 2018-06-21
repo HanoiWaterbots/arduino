@@ -88,23 +88,23 @@ void loop() {
 
   if (senderAux != senderLastAux) {
     if (senderAux == HIGH) {
-      Serial.println("[SENDER] AUX Rising...");
+      //Serial.println("[SENDER] AUX Rising...");
     } else {
-      Serial.println("[SENDER] AUX Falling...");
+      //Serial.println("[SENDER] AUX Falling...");
     }
   }
 
   // Send data
   if (Serial.available()) {
     if (!sending) {
-      Serial.println("[SEND] Start sending...");
+      //Serial.println("[SEND] Start sending...");
       sending = 1;
     }
     byte b = Serial.read();
     LoRaSender.write(b);
   } else {
     if (sending) {
-      Serial.println("[SEND] Stop sending.");
+      //Serial.println("[SEND] Stop sending.");
       LoRaSender.flush();
       sending = 0;
     }
@@ -112,8 +112,8 @@ void loop() {
 
   // Receive data
   if (LoRaSender.available()) {
-    Serial.print("[RECEIVE] ");
+    //Serial.print("[RECEIVE] ");
     byte b = LoRaSender.read();
-    Serial.print(b);
+    //Serial.print(b);
   }
 }
