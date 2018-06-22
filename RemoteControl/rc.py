@@ -25,6 +25,8 @@ S_KEY = False
 D_KEY = False
 Q_KEY = False
 
+keymap = dict()
+
 TIME_INTERVAL = 1   #In seconds
 print("Done")
 
@@ -79,18 +81,28 @@ def slowDown():
     if RM - ACC >= MIN_R:
         RM = RM - ACC
 
-def keyPressed(key, status):
-    global W_KEY, A_KEY, S_KEY, D_KEY, Q_KEY, STOP_L, STOP_R, LM, RM
+def keyPressed(key, uc, status):
+    global W_KEY, A_KEY, S_KEY, D_KEY, Q_KEY, STOP_L, STOP_R, LM, RM, s
 
-    if key == 119: #W
+    #Reset the speed when the keys are not pressed
+    if status == False:
+        LM = MIN_L
+        RM = MIN_R
+
+    if uc is None:
+        uc = keymap[key]
+    else:
+        keymap[key] = uc
+
+    if uc == 'w':
         W_KEY = status
-    elif key == 97:
+    elif uc == 'a':
         A_KEY = status
-    elif key == 115:
+    elif uc == 's':
         S_KEY = status
-    elif key == 100:
+    elif uc == 'd':
         D_KEY = status
-    if key == 113:
+    if uc == 'q':
         if LM >= STOP_L or RM >= STOP_R:
             LM = STOP_L
             RM = STOP_R
@@ -137,10 +149,10 @@ def main():
                 pygame.quit()
                 exit()
             elif event.type == pygame.KEYDOWN:
-                keyPressed(event.key, True)
-            
+                if hasattr(event, 'unicode'):
+                    keyPressed(event.key, event.unicode, True)
             elif event.type == pygame.KEYUP:
-                keyPressed(event.key, False)
+                keyPressed(event.key, None, False)
 
         #Do the commands after the events above
         doCommands()
@@ -154,7 +166,9 @@ def main():
         
         pygame.display.update()
         if(time.time() - t >= TIME_INTERVAL):
+            print("writing" + str(LM) + ";" +  str(RM))
             s.write(('b' + str(LM) + ";" +  str(RM)).encode())
+            print("Done")
             t = time.time()
 
 if __name__ == '__main__':
