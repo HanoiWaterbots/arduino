@@ -71,7 +71,7 @@ void LoRaSendSetCmd(HardwareSerial &LoRa, byte cmd[], byte addh, byte addl, byte
 #define BOTH_MOTOR 2
 #define NO_MOTOR -1
 Servo ESC1, ESC2;
-int leftMotor = 1500;
+int leftMotor = 1550;
 int rightMotor = 1550;
 
 /* Main */
@@ -93,17 +93,18 @@ void setup() {
   LoRaSetMode(RECEIVER_MD0, RECEIVER_MD1, NORMAL);
 
   // Motor
-  ESC1.attach(3);  
-  ESC2.attach(2);
+  ESC1.attach(11);  
+  ESC2.attach(10);
 
   // Arm the motors
   ESC1.writeMicroseconds(2000);
   ESC2.writeMicroseconds(2000);
-  delay(100);
+  delay(500);
 
   ESC1.writeMicroseconds(leftMotor);
   ESC2.writeMicroseconds(rightMotor);
   delay(2000);
+
 }
 
 void loop() {
