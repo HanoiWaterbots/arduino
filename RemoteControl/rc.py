@@ -9,8 +9,8 @@ SERIAL_RATE = sys.argv[2]
 MIN_L = 1500
 MIN_R = 1550
 
-MAX_L = 2400
-MAX_R = 2400
+MAX_L = 2000
+MAX_R = 2000
 
 LM = MIN_L
 RM = MIN_R
@@ -44,7 +44,7 @@ def moveLeft():
     global MIN_L, MIN_R, MAX_L, MAX_R, LM, RM, ACC
     
     if RM + ACC >= MAX_R:
-        if(LM >= MIN_L):
+        if(LM >= MIN_L + 50):
             LM = LM - ACC
     else:
         RM = RM + ACC
@@ -54,7 +54,7 @@ def moveRight():
     global MIN_L, MIN_R, MAX_L, MAX_R, LM, RM, ACC
     
     if LM + ACC >= MAX_L:
-        if RM>=MIN_R:
+        if RM>=MIN_R + 50:
             RM = RM - ACC
     else:
         LM = LM + ACC
