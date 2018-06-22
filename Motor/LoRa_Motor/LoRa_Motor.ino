@@ -67,8 +67,11 @@ void LoRaSendSetCmd(HardwareSerial &LoRa, byte cmd[], byte addh, byte addl, byte
 
 #define LEFT_MOTOR 0
 #define RIGHT_MOTOR 1
+#define BOTH_MOTOR 2
 #define NO_MOTOR -1
 Servo ESC1, ESC2;
+int leftMotor = 1500;
+int rightMotor = 1550;
 
 /* Main */
 
@@ -76,6 +79,8 @@ int inCommand = 0;
 int motor = NO_MOTOR;
 
 void setup() {
+  Serial.begin(57600);
+
   // LoRa
   pinMode(RECEIVER_MD0, OUTPUT);
   pinMode(RECEIVER_MD1, OUTPUT);
@@ -87,59 +92,87 @@ void setup() {
   LoRaSetMode(RECEIVER_MD0, RECEIVER_MD1, NORMAL);
 
   // Motor
-  ESC1.attach(2);  
-  ESC2.attach(3);
+  ESC1.attach(3);  
+  ESC2.attach(2);
 
-  ESC1.writeMicroseconds(1600);
-  ESC2.writeMicroseconds(1600);
+  // Arm the motors
+  ESC1.writeMicroseconds(2000);
+  ESC2.writeMicroseconds(2000);
+  delay(100);
+
+  ESC1.writeMicroseconds(leftMotor);
+  ESC2.writeMicroseconds(rightMotor);
   delay(2000);
-
-  Serial.begin(115200);
 }
 
 void loop() {
   if (LoRaReceiver.available()) {
-    Serial.print("[RECEIVE] ");
-    if (inCommand) {
-      int num = LoRaReceiver.parseInt();
-      Serial.print(num);
-      LoRaReceiver.print(num);
-
-      switch(motor) {
-        case NO_MOTOR:
-          break;
-        case LEFT_MOTOR:
-          ESC1.writeMicroseconds(num);
-          delay(1000);
-          break;
-        case RIGHT_MOTOR:
-          ESC2.writeMicroseconds(num);
-          delay(1000);
-          break;
-        default:
-          break;
-      }
-      motor = NO_MOTOR;
-      inCommand = 0;
-    } else {
-      byte b = LoRaReceiver.read();
-      Serial.print(b);
-      LoRaReceiver.write(b);
-
-      inCommand = 1;
-      switch(b) {
-        case 'l':
-          motor = LEFT_MOTOR;
-          break;
-        case 'r':
-          motor = RIGHT_MOTOR;
-          break;
-        default:
-          motor = NO_MOTOR;
-          inCommand = 0;
-          break;  
-      }
-    }
-    LoRaReceiver.flush();
+    takeCommand();
   }
+}
+
+void takeCommand() {
+  Serial.print("[LoRa RECEIVE] ");
+  if (inCommand) {
+    int num = LoRaReceiver.parseInt();
+    Serial.print(num);
+    //LoRaReceiver.print(num);
+
+    switch(motor) {
+      case NO_MOTOR:
+        break;
+      case LEFT_MOTOR:
+        if (num >= 700 && num <= 2500) {
+          ESC1.writeMicroseconds(num);
+          leftMotor = num;
+          delay(1000);
+        }
+        break;
+      case RIGHT_MOTOR:
+        if (num >= 700 && num <= 2500) {
+          ESC2.writeMicroseconds(num);
+          rightMotor = num;
+          delay(1000);
+        }
+        break;
+      case BOTH_MOTOR: {
+        leftMotor = num;
+        char dummy = LoRaReceiver.read(); // ';'
+        rightMotor = LoRaReceiver.parseInt();
+        Serial.print(dummy);
+        Serial.print(rightMotor);
+        ESC1.writeMicroseconds(leftMotor);
+        ESC2.writeMicroseconds(rightMotor);
+        delay(1000);
+        break;
+      }
+      default:
+        break;
+    }
+    motor = NO_MOTOR;
+    inCommand = 0;
+  } else {
+    char c = LoRaReceiver.read();
+    Serial.print(c);
+    //LoRaReceiver.write(c);
+
+    inCommand = 1;
+    switch(c) {
+      case 'l':
+        motor = LEFT_MOTOR;
+        break;
+      case 'r':
+        motor = RIGHT_MOTOR;
+        break;
+      case 'b':
+        motor = BOTH_MOTOR;
+        break;
+      default:
+        motor = NO_MOTOR;
+        inCommand = 0;
+        break;
+    }
+  }
+  //LoRaReceiver.flush();
+  Serial.println("");
 }
