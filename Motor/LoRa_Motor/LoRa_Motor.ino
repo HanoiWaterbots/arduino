@@ -5,7 +5,8 @@
 // Pin settings
 #define RECEIVER_MD0 7
 #define RECEIVER_MD1 6
-#define LoRaReceiver Serial1
+//#define LoRaReceiver Serial1
+#define LoRaReceiver Serial
 
 // LoRa modes
 #define NORMAL 0
@@ -79,7 +80,7 @@ int inCommand = 0;
 int motor = NO_MOTOR;
 
 void setup() {
-  Serial.begin(57600);
+  //Serial.begin(57600);
 
   // LoRa
   pinMode(RECEIVER_MD0, OUTPUT);
@@ -112,10 +113,10 @@ void loop() {
 }
 
 void takeCommand() {
-  Serial.print("[LoRa RECEIVE] ");
+  //Serial.print("[LoRa RECEIVE] ");
   if (inCommand) {
     int num = LoRaReceiver.parseInt();
-    Serial.print(num);
+    //Serial.print(num);
     //LoRaReceiver.print(num);
 
     switch(motor) {
@@ -139,8 +140,8 @@ void takeCommand() {
         leftMotor = num;
         char dummy = LoRaReceiver.read(); // ';'
         rightMotor = LoRaReceiver.parseInt();
-        Serial.print(dummy);
-        Serial.print(rightMotor);
+        //Serial.print(dummy);
+        //Serial.print(rightMotor);
         ESC1.writeMicroseconds(leftMotor);
         ESC2.writeMicroseconds(rightMotor);
         delay(1000);
@@ -153,7 +154,7 @@ void takeCommand() {
     inCommand = 0;
   } else {
     char c = LoRaReceiver.read();
-    Serial.print(c);
+    //Serial.print(c);
     //LoRaReceiver.write(c);
 
     inCommand = 1;
@@ -174,5 +175,5 @@ void takeCommand() {
     }
   }
   //LoRaReceiver.flush();
-  Serial.println("");
+  //Serial.println("");
 }
