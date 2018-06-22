@@ -6,7 +6,6 @@
 #include "OneWire.h"
 #include "SdService.h"
 #include "Debug.h"
-// #include <SoftwareSerial.h>
 #include <TinyGPS++.h>
 
 /* WaterMonitor */
@@ -28,22 +27,28 @@ double GPS_lat = 0.0;
 double GPS_lng = 0.0;
 
 /* ESP8266 */
-// SoftwareSerial ESP(10, 11); // RX, TX
+
 #define ESP Serial3
 
 /* Main */
 
+#define UPDATE_TIME 20000
+
 void setup() {
   Serial.begin(57600);
-  rtc.setup();
+
+  // WaterMonitor
   sensorHub.setup();
   sdService.setup();
+
+  // GPS
   GPS.begin(9600);
+
+  // ESP8266
   ESP.begin(115200);
 }
 
 void loop() {
-	rtc.update();
 	sensorHub.update();
 	sdService.update();
 
@@ -52,12 +57,11 @@ void loop() {
       if (gpsParser.encode(c)) parseGPS();
   }
 
-	// ************************* ESP debugging ******************
-	if(millis() - updateTime > 2000)
-	{
-		updateTime = millis();
+  if(millis() - updateTime > UPDATE_TIME)
+  {
+    updateTime = millis();
     sendData();
-	}
+  }
 }
 
 void parseGPS() {
@@ -69,20 +73,6 @@ void parseGPS() {
 
 void sendData() {
   ESP.print("{");
- 
-  ESP.print(F("\"timestamp\": \""));
-  ESP.print(rtc.year);
-  ESP.print("-");
-  ESP.print(rtc.month);
-  ESP.print("-");
-  ESP.print(rtc.day);
-  ESP.print("T");
-  ESP.print(rtc.hour);
-  ESP.print(":");
-  ESP.print(rtc.minute);
-  ESP.print(":");
-  ESP.print(rtc.second);
-  ESP.print("\",");
   
   ESP.print(F("\"pH\":  "));
   ESP.print(sensorHub.getValueBySensorNumber(0));
@@ -117,20 +107,6 @@ void sendData() {
 
   // Debug
   Serial.print("{");
- 
-  Serial.print(F("\"timestamp\": \""));
-  Serial.print(rtc.year);
-  Serial.print("-");
-  Serial.print(rtc.month);
-  Serial.print("-");
-  Serial.print(rtc.day);
-  Serial.print("T");
-  Serial.print(rtc.hour);
-  Serial.print(":");
-  Serial.print(rtc.minute);
-  Serial.print(":");
-  Serial.print(rtc.second);
-  Serial.print("\",");
   
   Serial.print(F("\"pH\":  "));
   Serial.print(sensorHub.getValueBySensorNumber(0));
