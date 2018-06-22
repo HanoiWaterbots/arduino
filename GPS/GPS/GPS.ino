@@ -1,6 +1,6 @@
 #include <TinyGPS++.h>
 
-#define GPS Serial1
+#define GPS Serial2
 TinyGPSPlus gpsParser;
 char GPSstring[100];
 
